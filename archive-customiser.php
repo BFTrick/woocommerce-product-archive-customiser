@@ -32,9 +32,61 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 		class WC_pac {
 
 			public function __construct() {
+
+				// load our settings
+				add_action( 'init', array( $this, 'wc_pac_settings' ) );
+
+				// load styles
 				add_action( 'wp_enqueue_scripts', array( $this, 'wc_pac_styles' ) );
 
-				// Init settings
+				// Admin
+				add_action( 'woocommerce_settings_catalog_options_after', array( $this, 'admin_settings' ), 20 );
+				add_action( 'woocommerce_update_options_catalog', array( $this, 'save_admin_settings' ) ); // < 2.1
+				add_action( 'woocommerce_update_options_products', array( $this, 'save_admin_settings' ) ); // 2.1 +
+				add_action( 'admin_enqueue_scripts', array( $this, 'wc_pac_admin_scripts' ) );
+				add_action( 'init', array( $this, 'wc_pac_fire_customisations' ) );
+				add_action( 'wp', array( $this, 'wc_pac_columns' ) ); // This doesn't work when hooked into init :(
+
+			}
+
+
+			/*-----------------------------------------------------------------------------------*/
+			/* Class Functions */
+			/*-----------------------------------------------------------------------------------*/
+
+			// Load the settings
+			function admin_settings() {
+				woocommerce_admin_fields( $this->settings );
+			}
+
+
+			// Save the settings
+			function save_admin_settings() {
+				woocommerce_update_options( $this->settings );
+			}
+
+			// Admin scripts
+			function wc_pac_admin_scripts() {
+				$screen       = get_current_screen();
+				$wc_screen_id = strtolower( __( 'WooCommerce', 'woocommerce' ) );
+
+				// WooCommerce admin pages
+				if ( in_array( $screen->id, apply_filters( 'woocommerce_screen_ids', array( 'toplevel_page_' . $wc_screen_id, $wc_screen_id . '_page_woocommerce_settings' ) ) ) ) {
+
+					wp_enqueue_script( 'wc-pac-script', plugins_url( '/assets/js/script.min.js', __FILE__ ) );
+
+				}
+			}
+
+			// Setup styles
+			function wc_pac_styles() {
+				wp_enqueue_style( 'pac-styles', plugins_url( '/assets/css/pac.css', __FILE__ ) );
+				wp_enqueue_style( 'pac-layout-styles', plugins_url( '/assets/css/layout.css', __FILE__ ), '', '', 'only screen and (min-width: ' . apply_filters( 'woocommerce_style_smallscreen_breakpoint', $breakpoint = '768px' ) . ')' );
+			}
+
+			// Setup settings
+			function wc_pac_settings() {
+
 				$this->settings = array(
 					array(
 						'name' 		=> __( 'Product Archives', 'woocommerce-product-archive-customiser' ),
@@ -135,7 +187,10 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 						'type' 		=> 'number',
 						'default'	=> '30'
 					),
-					array( 'type' => 'sectionend', 'id' => 'wc_pac_options' ),
+					array(
+						'type' => 'sectionend',
+						'id' => 'wc_pac_options'
+					),
 				);
 
 
@@ -154,51 +209,6 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 				add_option( 'wc_pac_categories', 'no' );
 				add_option( 'wc_pac_stock', 'no' );
 				add_option( 'wc_pac_newness', '30' );
-
-
-				// Admin
-				add_action( 'woocommerce_settings_catalog_options_after', array( $this, 'admin_settings' ), 20 );
-				add_action( 'woocommerce_update_options_catalog', array( $this, 'save_admin_settings' ) ); // < 2.1
-				add_action( 'woocommerce_update_options_products', array( $this, 'save_admin_settings' ) ); // 2.1 +
-				add_action( 'admin_enqueue_scripts', array( $this, 'wc_pac_admin_scripts' ) );
-				add_action( 'init', array( $this, 'wc_pac_fire_customisations' ) );
-				add_action( 'wp', array( $this, 'wc_pac_columns' ) ); // This doesn't work when hooked into init :(
-
-			}
-
-
-			/*-----------------------------------------------------------------------------------*/
-			/* Class Functions */
-			/*-----------------------------------------------------------------------------------*/
-
-			// Load the settings
-			function admin_settings() {
-				woocommerce_admin_fields( $this->settings );
-			}
-
-
-			// Save the settings
-			function save_admin_settings() {
-				woocommerce_update_options( $this->settings );
-			}
-
-			// Admin scripts
-			function wc_pac_admin_scripts() {
-				$screen       = get_current_screen();
-				$wc_screen_id = strtolower( __( 'WooCommerce', 'woocommerce' ) );
-
-				// WooCommerce admin pages
-				if ( in_array( $screen->id, apply_filters( 'woocommerce_screen_ids', array( 'toplevel_page_' . $wc_screen_id, $wc_screen_id . '_page_woocommerce_settings' ) ) ) ) {
-
-					wp_enqueue_script( 'wc-pac-script', plugins_url( '/assets/js/script.min.js', __FILE__ ) );
-
-				}
-			}
-
-			// Setup styles
-			function wc_pac_styles() {
-				wp_enqueue_style( 'pac-styles', plugins_url( '/assets/css/pac.css', __FILE__ ) );
-				wp_enqueue_style( 'pac-layout-styles', plugins_url( '/assets/css/layout.css', __FILE__ ), '', '', 'only screen and (min-width: ' . apply_filters( 'woocommerce_style_smallscreen_breakpoint', $breakpoint = '768px' ) . ')' );
 			}
 
 			// Fire customisations!
