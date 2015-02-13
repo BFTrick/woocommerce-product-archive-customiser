@@ -81,6 +81,9 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 					$url .= urlencode( site_url() );
 				}
 
+				// get the return page
+				$url .= '&return=' . urlencode( admin_url() . 'admin.php?page=wc-settings&tab=products&section=display' );
+
 				//save the url
 				$this->theme_customizer_url = $url;
 
