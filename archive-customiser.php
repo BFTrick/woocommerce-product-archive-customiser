@@ -167,7 +167,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 			}
 
 
-	        /*-----------------------------------------------------------------------------------*/
+			/*-----------------------------------------------------------------------------------*/
 			/* Class Functions */
 			/*-----------------------------------------------------------------------------------*/
 
@@ -185,14 +185,14 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 			// Admin scripts
 			function wc_pac_admin_scripts() {
 				$screen       = get_current_screen();
-			    $wc_screen_id = strtolower( __( 'WooCommerce', 'woocommerce' ) );
+				$wc_screen_id = strtolower( __( 'WooCommerce', 'woocommerce' ) );
 
-			    // WooCommerce admin pages
-			    if ( in_array( $screen->id, apply_filters( 'woocommerce_screen_ids', array( 'toplevel_page_' . $wc_screen_id, $wc_screen_id . '_page_woocommerce_settings' ) ) ) ) {
+				// WooCommerce admin pages
+				if ( in_array( $screen->id, apply_filters( 'woocommerce_screen_ids', array( 'toplevel_page_' . $wc_screen_id, $wc_screen_id . '_page_woocommerce_settings' ) ) ) ) {
 
-			    	wp_enqueue_script( 'wc-pac-script', plugins_url( '/assets/js/script.min.js', __FILE__ ) );
+					wp_enqueue_script( 'wc-pac-script', plugins_url( '/assets/js/script.min.js', __FILE__ ) );
 
-			    }
+				}
 			}
 
 			// Setup styles
@@ -370,11 +370,11 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 			function woocommerce_pac_show_product_stock() {
 				global $product;
 				$stock = $product->get_total_stock();
-			 	if ( ! $product->is_in_stock() ) {
-			 		echo '<p class="stock out-of-stock"><small>' . __( 'Out of stock', 'woothemes' ) . '</small></p>';
-			 	} elseif ( $stock > 1 ) {
-			 		echo '<p class="stock in-stock"><small>' . $stock . __( ' In stock', 'woothemes' ) . '</small></p>';
-			 	}
+				 if ( ! $product->is_in_stock() ) {
+					 echo '<p class="stock out-of-stock"><small>' . __( 'Out of stock', 'woothemes' ) . '</small></p>';
+				 } elseif ( $stock > 1 ) {
+					 echo '<p class="stock in-stock"><small>' . $stock . __( ' In stock', 'woothemes' ) . '</small></p>';
+				 }
 			}
 		}
 
