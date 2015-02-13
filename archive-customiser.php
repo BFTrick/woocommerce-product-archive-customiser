@@ -31,9 +31,12 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 
 		class WC_pac {
 
+			private $theme_customizer_url;
+
 			public function __construct() {
 
 				// load our settings
+				add_action( 'init', array( $this, 'set_theme_customizer_url' ) );
 				add_action( 'init', array( $this, 'wc_pac_settings' ) );
 
 				// load styles
@@ -47,12 +50,41 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 				add_action( 'init', array( $this, 'wc_pac_fire_customisations' ) );
 				add_action( 'wp', array( $this, 'wc_pac_columns' ) ); // This doesn't work when hooked into init :(
 
+				// add a custom action for the button setting type
+				add_action( 'woocommerce_admin_field_wc_pac_button', array( $this, 'button_setting' ) );
+
 			}
 
 
 			/*-----------------------------------------------------------------------------------*/
 			/* Class Functions */
 			/*-----------------------------------------------------------------------------------*/
+
+			/**
+			 * Set the theme customizer url
+			 *
+			 * @since  1.0
+			 */
+			public function set_theme_customizer_url() {
+
+				// get theme customizer url
+				$url = admin_url() . 'customize.php?url=';
+
+				// get the shop url
+				$shop_page_url = get_permalink( wc_get_page_id( 'shop' ) );
+
+				// if we have a shop page go straight to it
+				// else go to the home page
+				if ( $shop_page_url ) {
+					$url .= urlencode( $shop_page_url );
+				} else {
+					$url .= urlencode( site_url() );
+				}
+
+				//save the url
+				$this->theme_customizer_url = $url;
+
+			}
 
 			// Load the settings
 			function admin_settings() {
@@ -93,6 +125,13 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 						'desc'		=> __( 'Toggle the display of various components on product archives and change product layout.', 'woocommerce-product-archive-customiser' ),
 						'type' 		=> 'title',
 						'id' 		=> 'wc_pac_options'
+					),
+					array(
+						'title' => __( 'Customise!', 'woocommerce-product-archive-customiser' ),
+						'desc'  => __( 'Customise your product archive pages with the WordPress Customizer.', 'woocommerce-product-archive-customiser' ),
+						'type'  => 'wc_pac_button',
+						'id'    => 'pac_button',
+						'link'  => $this->theme_customizer_url
 					),
 					array(
 						'title' 	=> __( 'Product Columns', 'woocommerce-product-archive-customiser' ),
@@ -386,6 +425,32 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 					 echo '<p class="stock in-stock"><small>' . $stock . __( ' In stock', 'woothemes' ) . '</small></p>';
 				 }
 			}
+
+			/**
+			 * Add a custom layout for the button type setting
+			 *
+			 * @param  mixed $settings
+			 * @since  1.0
+			 */
+			public function button_setting( $settings ) {
+				?>
+				<tr valign="top">
+					<th scope="row" class="titledesc"><?php echo $settings['desc'];?></th>
+					<td class="forminp forminp-<?php echo sanitize_title( $settings['type'] ) ?>">
+						<a href="<?php echo $settings['link']; ?>">
+							<button
+							name="<?php echo esc_attr( $settings['id'] ); ?>"
+							id="<?php echo esc_attr( $settings['id'] ); ?>"
+							style="<?php echo esc_attr( $settings['css'] ); ?>"
+							class="button-secondary <?php echo esc_attr( $settings['class'] ); ?>"
+							type="button">
+							<?php echo $settings['title']; ?>
+						</button>
+					</a>
+				</td>
+			</tr>
+			<?php
+		}
 		}
 
 		$WC_pac = new WC_pac();
