@@ -44,7 +44,7 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 
 				// add customizer controls
 				if( isset( $_GET[ $this->customizer_flag ] ) &&  true == $_GET[ $this->customizer_flag ] ) {
-					// TODO
+					add_filter( 'customize_register', array( $this, 'customizer_controls' ), 50 );
 				}
 
 				// load styles
@@ -262,6 +262,25 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 				add_option( 'wc_pac_categories', 'no' );
 				add_option( 'wc_pac_stock', 'no' );
 				add_option( 'wc_pac_newness', '30' );
+			}
+
+			/**
+			 * Add our controls to the Customizer.
+			 *
+			 * @param object $wp_customize
+			 * @since 1.0
+			 */
+			public function customizer_controls( $wp_customize ) {
+
+				// remove the standard settings
+				$wp_customize->remove_section( 'title_tagline' );
+				$wp_customize->remove_section( 'nav' );
+				$wp_customize->remove_section( 'static_front_page' );
+				$wp_customize->remove_section( 'colors' );
+				$wp_customize->remove_section( 'header_image' );
+				$wp_customize->remove_section( 'background_image' );
+				$wp_customize->remove_panel( 'widgets' );
+
 			}
 
 			// Fire customisations!
