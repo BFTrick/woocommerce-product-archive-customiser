@@ -32,12 +32,20 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 		class WC_pac {
 
 			private $theme_customizer_url;
+			private $customizer_flag;
 
 			public function __construct() {
+
+				$this->customizer_flag = 'wc-pac';
 
 				// load our settings
 				add_action( 'init', array( $this, 'set_theme_customizer_url' ) );
 				add_action( 'init', array( $this, 'wc_pac_settings' ) );
+
+				// add customizer controls
+				if( isset( $_GET[ $this->customizer_flag ] ) &&  true == $_GET[ $this->customizer_flag ] ) {
+					// TODO
+				}
 
 				// load styles
 				add_action( 'wp_enqueue_scripts', array( $this, 'wc_pac_styles' ) );
@@ -83,6 +91,9 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 
 				// get the return page
 				$url .= '&return=' . urlencode( admin_url() . 'admin.php?page=wc-settings&tab=products&section=display' );
+
+				// add another parameter that acts as a flag
+				$url .= '&' . $this->customizer_flag . '=true';
 
 				//save the url
 				$this->theme_customizer_url = $url;
@@ -453,7 +464,8 @@ if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', g
 				</td>
 			</tr>
 			<?php
-		}
+			}
+
 		}
 
 		$WC_pac = new WC_pac();
